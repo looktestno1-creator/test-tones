@@ -44,8 +44,9 @@ The tone codes match the `@NNNN` suffix of the original sound files. Nothing in 
 
 ## Collecting answers in Google Sheets
 
-1. Open the results sheet, then **Extensions → Apps Script**.
-2. Replace everything in `Code.gs` with the contents of `apps-script/Code.gs`, then save.
+1. Go to [script.google.com](https://script.google.com) signed in as the sheet's owner, and click **New project**.
+   (Opening Apps Script from the sheet's **Extensions** menu also works, but it fails with "Sorry, unable to open the file at present" when the browser is signed in to more than one Google account. If you see that, use a private window signed in to just the owner's account.)
+2. Replace everything in `Code.gs` with the contents of `apps-script/Code.gs`, then save. `SHEET_ID` at the top already points at the results sheet.
 3. **Deploy → New deployment →** type **Web app**. Set *Execute as* to **Me** and *Who has access* to **Anyone**, then **Deploy** and allow access when Google asks.
 4. Copy the web app URL (it ends in `/exec`) and paste it into `SHEET_URL` near the bottom of `index.html`.
 

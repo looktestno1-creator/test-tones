@@ -2,6 +2,9 @@
 // One row per sound. Resubmitting replaces that respondent's earlier rows.
 // Setup: see README.md, "Collecting answers in Google Sheets".
 
+// The results sheet, so the script also works as a standalone project at script.google.com
+const SHEET_ID = "1b6PFHoDnMey60xM-q1J8NavA5ugJUdk7lRZ-2XluCec";
+
 const HEADERS = ["Submitted at", "Respondent", "Sound set", "Sound", "File", "Tone code",
   "What it means", "My pick", "Rating", "Set notes"];
 
@@ -13,7 +16,8 @@ function doPost(e) {
     const respondent = String(body.respondent || "").slice(0, 64);
     if (!respondent || !Array.isArray(body.rows) || body.rows.length > 100) return reply({ ok: false });
 
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+    const book = SpreadsheetApp.getActiveSpreadsheet() || SpreadsheetApp.openById(SHEET_ID);
+    const sheet = book.getSheets()[0];
     if (sheet.getLastRow() === 0) sheet.appendRow(HEADERS);
 
     // Drop this respondent's earlier submission (bottom-up so row numbers stay valid)
