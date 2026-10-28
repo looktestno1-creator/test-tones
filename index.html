@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Daidaiiro Tone Survey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one narrow column, a two-step stepper on top, one card per tone variation */
+:root {
+  --bg: #f6f5f3;
+  --surface: #ffffff;
+  --fg: #1d1a17;
+  --muted: #6c655e;
+  --line: #e2ddd7;
+  --accent: #ee7800;      /* daidai-iro */
+  --accent-ink: #b45a00;
+  --accent-soft: #fdeedd;
+  --on-accent: #ffffff;
+  --wave: #d9d2ca;
+  --display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+  --body: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #151311; --surface: #1f1c19; --fg: #f1ede8; --muted: #a39b92; --line: #34302b;
+  --accent: #ff8a1f; --accent-ink: #ffa552; --accent-soft: #3a2614; --on-accent: #1d1206; --wave: #46403a;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #151311; --surface: #1f1c19; --fg: #f1ede8; --muted: #a39b92; --line: #34302b;
+  --accent: #ff8a1f; --accent-ink: #ffa552; --accent-soft: #3a2614; --on-accent: #1d1206; --wave: #46403a;
+  color-scheme: dark }
+
+body { background: var(--bg); color: var(--fg); font: 15px/1.55 var(--body); }
+.wrap { max-width: 680px; margin: 0 auto; padding-block: 40px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 28px; }
+
+header { display: flex; flex-direction: column; gap: 8px; }
+.eyebrow { font: 500 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent-ink); }
+h1 { font: 700 clamp(28px, 6vw, 38px)/1.1 var(--display); margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+.lede { margin: 0; color: var(--muted); max-width: 60ch; }
+
+.steps { display: flex; gap: 8px; }
+.step { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; background: none; border: 0; padding: 0; text-align: left; cursor: pointer; color: var(--muted); font: 500 13px/1.3 var(--body); }
+.step .bar { height: 4px; border-radius: 2px; background: var(--line); }
+.step[aria-current="step"] { color: var(--fg); }
+.step[aria-current="step"] .bar, .step.done .bar { background: var(--accent); }
+.step:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 2px; }
+
+.page { display: flex; flex-direction: column; gap: 16px; }
+.page h2 { font: 700 24px/1.2 var(--display); margin: 0; }
+.page .q { margin: 0 0 4px; color: var(--muted); }
+
+.tone { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+.tone.fav { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.tone-top { display: flex; align-items: center; gap: 14px; }
+.play { flex: none; width: 48px; height: 48px; border-radius: 50%; border: 0; background: var(--accent); color: var(--on-accent); cursor: pointer; display: grid; place-items: center; }
+.play:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }
+.play svg { width: 18px; height: 18px; fill: currentColor; }
+.meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.name { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.name strong { font: 600 16px/1.2 var(--body); }
+.code { font: 400 12px/1 var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+canvas.wave { width: 100%; height: 36px; display: block; cursor: pointer; }
+
+.answers { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid var(--line); padding-top: 12px; }
+.rating { display: flex; align-items: center; gap: 6px; border: 0; margin: 0; padding: 0; }
+.rating legend { float: left; margin-right: 6px; font-size: 13px; color: var(--muted); }
+.rating input { position: absolute; opacity: 0; pointer-events: none; }
+.rating label { width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; font: 500 13px/1 var(--mono); }
+.rating input:checked + label { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.rating input:focus-visible + label { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tone:not(.fav) .rating { display: none; }
+.assoc { display: flex; flex-direction: column; gap: 6px; }
+.assoc label { font-size: 13px; color: var(--muted); }
+.assoc input { font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 9px 12px; min-width: 0; }
+.assoc input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+td .who { color: var(--muted); font-size: 12px; }
+.favpick { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+.favpick input { accent-color: var(--accent); width: 16px; height: 16px; }
+
+.notes { display: flex; flex-direction: column; gap: 6px; }
+.notes label { font-size: 13px; color: var(--muted); }
+textarea { font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; min-height: 72px; resize: vertical; }
+textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.nav { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.btn { font: 600 14px/1 var(--body); padding: 12px 18px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; }
+.btn.primary { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.summary { background: var(--accent-soft); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.summary pre { margin: 0; font: 400 12.5px/1.6 var(--mono); white-space: pre-wrap; word-break: break-word; }
+.status { font-size: 13px; color: var(--accent-ink); min-height: 1em; }
+.btn:disabled { opacity: .55; cursor: default; }
+
+.results { display: flex; flex-direction: column; gap: 20px; border-top: 1px solid var(--line); padding-top: 28px; }
+.results-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.results h2 { font: 700 24px/1.2 var(--display); margin: 0; }
+.results h3 { font: 600 15px/1.3 var(--body); margin: 0 0 8px; }
+.count { font: 500 13px/1 var(--mono); color: var(--muted); }
+.tablewrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+th { font: 500 12px/1.2 var(--mono); letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.meter { display: inline-block; vertical-align: middle; width: 64px; height: 6px; border-radius: 3px; background: var(--line); margin-left: 8px; overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--accent); }
+.lead td:first-child { font-weight: 600; }
+.chip { display: inline-block; font: 500 11px/1 var(--mono); padding: 4px 6px; border-radius: 4px; background: var(--accent-soft); color: var(--accent-ink); margin-left: 6px; }
+.empty { color: var(--muted); margin: 0; }
+@media (prefers-reduced-motion: no-preference) { .tone { transition: border-color .15s, box-shadow .15s; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Product sounds</span>
+    <h1>What do these sounds mean to you?</h1>
+    <p class="lede">Play each sound and write down what you'd expect it to mean, or what it reminds you of. There are no wrong answers. Then mark the variation you like best and rate it from 1 to 5. There are two short pages.</p>
+  </header>
+
+  <nav class="steps" aria-label="Survey pages">
+    <button class="step" data-go="0" id="step-0"><span class="bar"></span>Sound set 1</button>
+    <button class="step" data-go="1" id="step-1"><span class="bar"></span>Sound set 2</button>
+  </nav>
+
+  <main id="pages"></main>
+
+  <section class="results" id="results" hidden>
+    <div class="results-head"><h2>Responses</h2><span class="count" id="res-count">No responses yet</span></div>
+    <p class="empty">Only you and editors see this section. Listeners see the survey only.</p>
+    <div id="res-body"></div>
+  </section>
+</div>
+
+<script>
+// Blind test: nothing in the page names what a set is for. `code` shows only in the owner-only results.
+const PAGES = [
+  { key: "s1", label: "Sound set 1",
+    tones: [
+      { file: "s/a1.wav", code: "@0150", dur: 5.84 },
+      { file: "s/a2.wav", code: "@0157", dur: 5.87 },
+      { file: "s/a3.wav", code: "@0124", dur: 1.16 },
+    ] },
+  { key: "s2", label: "Sound set 2",
+    tones: [
+      { file: "s/b1.wav", code: "@0103", dur: 1.21 },
+      { file: "s/b2.wav", code: "@0106", dur: 0.59 },
+      { file: "s/b3.wav", code: "@0171", dur: 0.80 },
+      { file: "s/b4.wav", code: "@0172", dur: 0.83 },
+    ] },
+];
+const PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>';
+const STOP = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg>';
+
+const answers = load() || {};
+function load() { try { return JSON.parse(localStorage.getItem("tone-survey-v2")); } catch { return null; } }
+function save() { try { localStorage.setItem("tone-survey-v2", JSON.stringify(answers)); } catch {} }
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+let current = null; // { audio, btn, wave }
+const pagesEl = document.getElementById("pages");
+
+PAGES.forEach((p, pi) => {
+  const a = answers[p.key] = { ratings: {}, fav: null, notes: "", assoc: {}, ...(answers[p.key] || {}) };
+  a.assoc ||= {};
+  const sec = document.createElement("section");
+  sec.className = "page"; sec.hidden = pi !== 0; sec.id = "page-" + pi;
+  sec.innerHTML = `<div><h2>${p.label}</h2><p class="q">${p.tones.length} variations of the same sound. Listen to each one and say what you think it means.</p></div>`;
+  p.tones.forEach((t, ti) => {
+    const id = `${p.key}-${ti + 1}`;
+    const card = document.createElement("article");
+    card.className = "tone" + (a.fav === id ? " fav" : "");
+    card.innerHTML = `
+      <div class="tone-top">
+        <button class="play" aria-label="Play variation ${ti + 1}">${PLAY}</button>
+        <div class="meta">
+          <div class="name"><strong>Variation ${ti + 1}</strong><span class="code">${t.dur.toFixed(2)} s</span></div>
+          <canvas class="wave" aria-hidden="true"></canvas>
+        </div>
+      </div>
+      <div class="assoc">
+        <label for="as-${id}">What would you expect this sound to mean? What does it remind you of?</label>
+        <input type="text" id="as-${id}" maxlength="300" autocomplete="off" placeholder="e.g. a device turning off, a timer finishing, a message arriving" value="${(a.assoc[id] || "").replace(/"/g, "&quot;")}">
+      </div>
+      <div class="answers">
+        <label class="favpick"><input type="radio" name="fav-${p.key}" id="fav-${id}" value="${id}" ${a.fav === id ? "checked" : ""}> My pick</label>
+        <fieldset class="rating"><legend>Rating</legend>
+          ${[1,2,3,4,5].map(n => `<input type="radio" name="r-${id}" id="r-${id}-${n}" value="${n}" ${a.ratings[id] == n ? "checked" : ""}><label for="r-${id}-${n}">${n}</label>`).join("")}
+        </fieldset>
+      </div>`;
+    const audio = new Audio(t.file); audio.preload = "auto";
+    const btn = card.querySelector(".play"), wave = card.querySelector("canvas");
+    const w = { canvas: wave, peaks: null, audio };
+    btn.onclick = () => toggle(audio, btn, w);
+    wave.onclick = () => toggle(audio, btn, w, true);
+    audio.onended = () => { btn.innerHTML = PLAY; btn.setAttribute("aria-label", `Play variation ${ti + 1}`); draw(w); current = null; };
+    card.querySelectorAll(".rating input").forEach(r => r.onchange = () => { a.ratings[id] = +r.value; save(); });
+    const asIn = card.querySelector(".assoc input"); asIn.oninput = () => { a.assoc[id] = asIn.value; save(); };
+    card.querySelector(".favpick input").onchange = () => {
+      // Only the pick carries a rating, so drop ratings left on other variations
+      a.fav = id;
+      Object.keys(a.ratings).forEach(k => { if (k !== id) delete a.ratings[k]; });
+      save();
+      sec.querySelectorAll(".tone").forEach(c => c.classList.remove("fav")); card.classList.add("fav");
+      sec.querySelectorAll(`.rating input:not([name="r-${id}"])`).forEach(r => r.checked = false);
+    };
+    sec.append(card);
+    loadPeaks(t.file, w);
+  });
+  sec.insertAdjacentHTML("beforeend", `
+    <div class="notes"><label for="notes-${p.key}">Anything else about these tones? (optional)</label>
+    <textarea id="notes-${p.key}" placeholder="e.g. Variation 2 feels too long for a repeating loop"></textarea></div>`);
+  const ta = sec.querySelector("textarea"); ta.value = a.notes; ta.oninput = () => { a.notes = ta.value; save(); };
+  const last = pi === PAGES.length - 1;
+  sec.insertAdjacentHTML("beforeend", `<div class="nav">
+    ${pi > 0 ? `<button class="btn" data-go="${pi - 1}">Back</button>` : "<span></span>"}
+    ${last ? `<button class="btn primary" id="finish">Submit answers</button>` : `<button class="btn primary" data-go="${pi + 1}">Next: ${PAGES[pi + 1].label}</button>`}
+  </div>`);
+  if (last) sec.insertAdjacentHTML("beforeend", `<p class="status" id="submit-status" role="status"></p>
+    <div class="summary" id="summary" hidden><p class="status" id="sum-note"></p><pre id="sum-text"></pre>
+    <div class="nav"><button class="btn primary" id="copy">Copy answers</button><span class="status" id="status" role="status"></span></div></div>`);
+  pagesEl.append(sec);
+});
+
+function go(i) {
+  stopCurrent();
+  document.querySelectorAll(".page").forEach((s, si) => s.hidden = si !== i);
+  document.querySelectorAll(".step").forEach((s, si) => {
+    s.toggleAttribute("aria-current", si === i); if (si === i) s.setAttribute("aria-current", "step");
+    s.classList.toggle("done", si < i);
+  });
+  document.querySelectorAll(".page:not([hidden]) canvas").forEach(c => draw(c._w));
+  window.scrollTo({ top: 0 });
+}
+document.addEventListener("click", e => { const g = e.target.closest("[data-go]"); if (g) go(+g.dataset.go); });
+go(0);
+
+function summaryText() {
+  return PAGES.map(p => {
+    const a = answers[p.key];
+    const ti = p.tones.findIndex((t, i) => a.fav === `${p.key}-${i + 1}`);
+    const pick = ti < 0 ? "  No pick" : `  Pick: Variation ${ti + 1}, ${a.ratings[a.fav] ? a.ratings[a.fav] + "/5" : "not rated"}`;
+    const assoc = p.tones.map((t, i) => `  Variation ${i + 1} means: ${a.assoc[`${p.key}-${i + 1}`] || "(no answer)"}`).join("\n");
+    return `${p.label}\n${assoc}\n${pick}${a.notes ? `\n  Notes: ${a.notes}` : ""}`;
+  }).join("\n\n");
+}
+// Shared responses: each listener writes responses/<their id>; only the owner and editors read them all.
+let db = null, user = null, myId = null, saved = false;
+const finishBtn = document.getElementById("finish"), submitStatus = document.getElementById("submit-status");
+
+function showFallback(note) {
+  document.getElementById("sum-note").textContent = note;
+  document.getElementById("sum-text").textContent = summaryText();
+  document.getElementById("summary").hidden = false;
+}
+function applyAnswers() {
+  PAGES.forEach(p => {
+    const a = answers[p.key];
+    p.tones.forEach((t, ti) => {
+      const id = `${p.key}-${ti + 1}`;
+      document.querySelectorAll(`input[name="r-${id}"]`).forEach(r => r.checked = a.ratings[id] == r.value);
+      document.getElementById("as-" + id).value = a.assoc[id] || "";
+      const f = document.getElementById("fav-" + id); f.checked = a.fav === id;
+      f.closest(".tone").classList.toggle("fav", a.fav === id);
+    });
+    document.getElementById("notes-" + p.key).value = a.notes || "";
+  });
+}
+
+finishBtn.onclick = async () => {
+  document.getElementById("step-1").classList.add("done");
+  if (!db || !myId) { showFallback("Answers can't be saved from this view. Copy them and send them over instead."); return; }
+  finishBtn.disabled = true; submitStatus.textContent = "Saving…";
+  try {
+    await db.doc("responses/" + myId).set({ answers: JSON.parse(JSON.stringify(answers)), submittedAt: Date.now() });
+    saved = true; finishBtn.textContent = "Update answers";
+    submitStatus.textContent = "Thanks, your answers are saved. You can change them and submit again.";
+  } catch (e) {
+    submitStatus.textContent = "";
+    showFallback(e && e.code === "invalid_argument"
+      ? "Your access to this page doesn't allow saving answers. Copy them and send them over instead."
+      : "Saving failed. Try again in a moment, or copy your answers and send them over.");
+  } finally { finishBtn.disabled = false; }
+};
+
+(async () => {
+  if (!window.claude?.use) return;
+  [db, user] = await Promise.all([claude.use("db"), claude.use("user")]);
+  if (!db || !user) return;
+  myId = await user.id();
+  if (myId) {
+    try {
+      const snap = await db.doc("responses/" + myId).get();
+      if (snap.exists && snap.data().answers) {
+        const prev = snap.data().answers;
+        PAGES.forEach(p => { if (prev[p.key]) answers[p.key] = { ratings: {}, fav: null, notes: "", assoc: {}, ...prev[p.key] }; });
+        save(); applyAnswers(); saved = true; finishBtn.textContent = "Update answers";
+        submitStatus.textContent = "You've already answered. Change anything and submit again to update.";
+      }
+    } catch {}
+  }
+  if (await user.canEdit()) watchResults();
+})();
+
+function watchResults() {
+  const box = document.getElementById("results"), body = document.getElementById("res-body"), count = document.getElementById("res-count");
+  box.hidden = false;
+  db.collection("responses").onSnapshot(async snap => {
+    const rows = snap.docs.filter(d => d.exists && d.data().answers).map(d => ({ id: d.id, ...d.data() }));
+    count.textContent = rows.length === 1 ? "1 response" : `${rows.length} responses`;
+    if (!rows.length) { body.innerHTML = `<p class="empty">Nobody has submitted yet. Responses appear here as they come in.</p>`; return; }
+    const ps = await user.profiles(rows.map(r => r.id));
+    const who = id => (ps[id] && ps[id].name) || "Someone";
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    body.innerHTML = PAGES.map(p => {
+      const stats = p.tones.map((t, ti) => {
+        const id = `${p.key}-${ti + 1}`;
+        const rs = rows.map(r => r.answers[p.key]?.ratings?.[id]).filter(Boolean);
+        return { ti, t, avg: rs.length ? rs.reduce((a, b) => a + b, 0) / rs.length : 0, n: rs.length,
+          picks: rows.filter(r => r.answers[p.key]?.fav === id).length };
+      });
+      const top = Math.max(...stats.map(s => s.picks));
+      const notes = rows.filter(r => r.answers[p.key]?.notes).map(r => `<tr><td>${esc(who(r.id))}</td><td>${esc(r.answers[p.key].notes)}</td></tr>`).join("");
+      const heard = p.tones.map((t, ti) => {
+        const id = `${p.key}-${ti + 1}`;
+        const said = rows.filter(r => r.answers[p.key]?.assoc?.[id]?.trim()).map(r => `${esc(r.answers[p.key].assoc[id])} <span class="who">· ${esc(who(r.id))}</span>`);
+        return `<tr><td>Variation ${ti + 1} <span class="code">${t.code}</span></td><td>${said.length ? said.join("<br>") : '<span class="who">No answers yet</span>'}</td></tr>`;
+      }).join("");
+      return `<div><h3>${p.label}</h3>
+        <div class="tablewrap" style="margin-bottom:10px"><table><thead><tr><th>Variation</th><th>What people think it means</th></tr></thead><tbody>${heard}</tbody></table></div>
+        <div class="tablewrap"><table>
+        <thead><tr><th>Variation</th><th>Picks</th><th>Avg rating from pickers</th></tr></thead><tbody>
+        ${stats.map(s => `<tr class="${top && s.picks === top ? "lead" : ""}"><td>Variation ${s.ti + 1} <span class="code">${s.t.code}</span>${top && s.picks === top ? '<span class="chip">most picked</span>' : ""}</td>
+          <td class="num">${s.picks}</td>
+          <td class="num">${s.n ? s.avg.toFixed(1) : "–"}<span class="meter"><i style="width:${s.avg / 5 * 100}%"></i></span> <span class="code">n=${s.n}</span></td></tr>`).join("")}
+        </tbody></table></div>
+        ${notes ? `<div class="tablewrap" style="margin-top:10px"><table><thead><tr><th>From</th><th>Notes</th></tr></thead><tbody>${notes}</tbody></table></div>` : ""}</div>`;
+    }).join("") + `<div><h3>Everyone's answers</h3><div class="tablewrap"><table>
+      <thead><tr><th>Listener</th>${PAGES.map(p => `<th>${p.label} pick</th>`).join("")}<th>Submitted</th></tr></thead><tbody>
+      ${rows.sort((a, b) => (b.submittedAt || 0) - (a.submittedAt || 0)).map(r => `<tr><td>${esc(who(r.id))}</td>
+        ${PAGES.map(p => { const f = r.answers[p.key]?.fav; return `<td class="num">${f ? "Variation " + f.split("-").pop() : "–"}</td>`; }).join("")}
+        <td class="num">${r.submittedAt ? new Date(r.submittedAt).toLocaleString([], { dateStyle: "medium", timeStyle: "short" }) : "–"}</td></tr>`).join("")}
+      </tbody></table></div></div>`;
+  }, () => { body.innerHTML = `<p class="empty">Responses couldn't load. Reload the page to try again.</p>`; });
+}
+document.getElementById("copy").onclick = () => {
+  const st = document.getElementById("status"), txt = summaryText();
+  navigator.clipboard.writeText(txt).then(() => st.textContent = "Copied.", () => {
+    const r = document.createRange(); r.selectNodeContents(document.getElementById("sum-text"));
+    const s = getSelection(); s.removeAllRanges(); s.addRange(r); st.textContent = "Text selected. Press Cmd+C or Ctrl+C to copy.";
+  });
+};
+
+function stopCurrent() {
+  if (!current) return;
+  current.audio.pause(); current.audio.currentTime = 0;
+  current.btn.innerHTML = PLAY; draw(current.w); current = null;
+}
+function toggle(audio, btn, w, restart) {
+  if (current && current.audio === audio && !restart) { stopCurrent(); return; }
+  stopCurrent();
+  audio.currentTime = 0; audio.play().catch(() => {});
+  btn.innerHTML = STOP; btn.setAttribute("aria-label", "Stop");
+  current = { audio, btn, w };
+  (function tick() { if (current && current.audio === audio) { draw(w); requestAnimationFrame(tick); } })();
+}
+
+async function loadPeaks(file, w) {
+  w.canvas._w = w;
+  try {
+    const buf = await (await fetch(file)).arrayBuffer();
+    const ctx = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(1, 1, 44100);
+    const data = (await ctx.decodeAudioData(buf)).getChannelData(0);
+    const N = 120, step = Math.floor(data.length / N), peaks = [];
+    for (let i = 0; i < N; i++) { let m = 0; for (let j = i * step; j < (i + 1) * step; j++) m = Math.max(m, Math.abs(data[j])); peaks.push(m); }
+    const max = Math.max(...peaks) || 1; w.peaks = peaks.map(v => v / max);
+  } catch { w.peaks = Array(120).fill(.25); }
+  draw(w);
+}
+function draw(w) {
+  if (!w || !w.peaks) return;
+  const c = w.canvas, dpr = devicePixelRatio || 1, W = c.clientWidth, H = c.clientHeight;
+  if (!W) return;
+  c.width = W * dpr; c.height = H * dpr;
+  const g = c.getContext("2d"); g.scale(dpr, dpr);
+  const n = w.peaks.length, bw = W / n, prog = w.audio.duration ? w.audio.currentTime / w.audio.duration : 0;
+  const on = css("--accent"), off = css("--wave");
+  w.peaks.forEach((p, i) => {
+    const h = Math.max(2, p * (H - 2));
+    g.fillStyle = (i / n) < prog ? on : off;
+    g.fillRect(i * bw + bw * .2, (H - h) / 2, Math.max(1, bw * .6), h);
+  });
+}
+addEventListener("resize", () => document.querySelectorAll(".page:not([hidden]) canvas").forEach(c => draw(c._w)));
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => document.querySelectorAll("canvas").forEach(c => draw(c._w)));
+</script>
+</body>
+</html>
