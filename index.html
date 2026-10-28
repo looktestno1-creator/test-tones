@@ -32,6 +32,9 @@
   --accent: #ff8a1f; --accent-ink: #ffa552; --accent-soft: #3a2614; --on-accent: #1d1206; --wave: #46403a;
   color-scheme: dark }
 
+/* The Claude viewer adds these resets itself; keep them here so the standalone page matches */
+[hidden] { display: none !important; }
+body { margin: 0; }
 body { background: var(--bg); color: var(--fg); font: 15px/1.55 var(--body); }
 .wrap { max-width: 680px; margin: 0 auto; padding-block: 40px calc(120px + env(safe-area-inset-bottom, 0px));
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
