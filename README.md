@@ -9,6 +9,7 @@ Listeners also pick their favourite sound in each set and rate it from 1 to 5.
 ## Files
 
 - `index.html`: the survey (a single page with no build step)
+- `apps-script/Code.gs`: receives answers and writes them to the results Google Sheet
 - `s/`: the tones, under neutral names so file names don't hint at their purpose
 
 | File | Set | Tone code |
@@ -37,7 +38,20 @@ The tone codes match the `@NNNN` suffix of the original sound files. Nothing in 
 
 ## Where answers are saved
 
-Answers are saved only when the page runs as a Claude artifact, which provides the shared storage. Hosted anywhere else (for example GitHub Pages), the survey plays and works the same, but **Submit answers** shows a summary for the listener to copy and send instead of saving it.
+- **As a Claude artifact:** answers go to the artifact's own private storage. Only the owner and editors see them.
+- **Anywhere else (e.g. GitHub Pages):** answers go to a Google Sheet through a small Apps Script web app (`apps-script/Code.gs`). Visitors never see other people's answers or the sheet. Each sound becomes one row, and resubmitting replaces that visitor's earlier rows.
+- If neither is available, **Submit answers** shows a summary for the listener to copy and send instead.
+
+## Collecting answers in Google Sheets
+
+1. Open the results sheet, then **Extensions → Apps Script**.
+2. Replace everything in `Code.gs` with the contents of `apps-script/Code.gs`, then save.
+3. **Deploy → New deployment →** type **Web app**. Set *Execute as* to **Me** and *Who has access* to **Anyone**, then **Deploy** and allow access when Google asks.
+4. Copy the web app URL (it ends in `/exec`) and paste it into `SHEET_URL` near the bottom of `index.html`.
+
+"Anyone" only lets visitors *send* answers. The script never returns sheet data, and the sheet itself stays private to you.
+
+After changing `Code.gs` later, use **Deploy → Manage deployments → Edit → New version** so the URL stays the same.
 
 ## Publishing on GitHub Pages
 

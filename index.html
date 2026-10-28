@@ -272,6 +272,8 @@ function summaryText() {
   }).join("\n\n");
 }
 // Shared responses: each listener writes responses/<their id>; only the owner and editors read them all.
+// Outside a Claude artifact (e.g. GitHub Pages) answers go to the Google Sheet web app below instead.
+const SHEET_URL = ""; // paste the Apps Script web app URL (ends in /exec)
 let db = null, user = null, myId = null, saved = false;
 const finishBtn = document.getElementById("finish"), submitStatus = document.getElementById("submit-status");
 
@@ -296,7 +298,10 @@ function applyAnswers() {
 
 finishBtn.onclick = async () => {
   document.getElementById("step-" + (PAGES.length - 1)).classList.add("done");
-  if (!db || !myId) { showFallback("Answers can't be saved from this view. Copy them and send them over instead."); return; }
+  if (!db || !myId) {
+    if (SHEET_URL) return sendToSheet();
+    showFallback("Answers can't be saved from this view. Copy them and send them over instead."); return;
+  }
   finishBtn.disabled = true; submitStatus.textContent = "Saving…";
   try {
     await db.doc("responses/" + myId).set({ answers: JSON.parse(JSON.stringify(answers)), submittedAt: Date.now() });
@@ -309,6 +314,36 @@ finishBtn.onclick = async () => {
       : "Saving failed. Try again in a moment, or copy your answers and send them over.");
   } finally { finishBtn.disabled = false; }
 };
+
+function respondentId() {
+  let id = null;
+  try { id = localStorage.getItem("tone-survey-respondent"); } catch {}
+  if (!id) {
+    id = "r-" + (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+    try { localStorage.setItem("tone-survey-respondent", id); } catch {}
+  }
+  return id;
+}
+async function sendToSheet() {
+  const rows = PAGES.flatMap(p => p.tones.map((t, ti) => {
+    const a = answers[p.key], id = `${p.key}-${ti + 1}`;
+    return { set: p.label, sound: `Variation ${ti + 1}`, file: t.file.split("/").pop(), code: t.code,
+      means: a.assoc[id] || "", pick: a.fav === id, rating: a.fav === id ? a.ratings[id] || "" : "", notes: a.notes || "" };
+  }));
+  finishBtn.disabled = true; submitStatus.textContent = "Saving…";
+  try {
+    // no-cors keeps this a simple request the Apps Script endpoint accepts; the reply is unreadable by design
+    await fetch(SHEET_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ respondent: respondentId(), rows }) });
+    try { localStorage.setItem("tone-survey-sent", "1"); } catch {}
+    finishBtn.textContent = "Update answers";
+    submitStatus.textContent = "Thanks, your answers are saved. You can change them and submit again.";
+  } catch {
+    submitStatus.textContent = "";
+    showFallback("Saving failed. Check your connection and try again, or copy your answers and send them over.");
+  } finally { finishBtn.disabled = false; }
+}
+try { if (localStorage.getItem("tone-survey-sent")) finishBtn.textContent = "Update answers"; } catch {}
 
 (async () => {
   if (!window.claude?.use) return;
