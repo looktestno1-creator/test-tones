@@ -130,7 +130,7 @@ td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-spa
   <header>
     <span class="eyebrow">Product sounds</span>
     <h1>What do these sounds mean to you?</h1>
-    <p class="lede">Play each sound and write down what you'd expect it to mean, or what it reminds you of. There are no wrong answers. Then mark the variation you like best and rate it from 1 to 5. There are five short pages.</p>
+    <p class="lede">Play each sound and write down what you'd expect it to mean, or what it reminds you of. There are no wrong answers. Then mark the variation you like best and rate it from 1 to 5. There are eight short pages.</p>
   </header>
 
   <nav class="steps" aria-label="Survey pages">
@@ -191,9 +191,27 @@ const PAGES = [
       { file: "s/e4.wav", code: "@0108", dur: 1.23 },
       { file: "s/e5.wav", code: "@0152", dur: 1.36 },
     ] },
+  { key: "s6", label: "Sound set 6",
+    tones: [
+      { file: "s/f1.wav", code: "@0146", dur: 0.11 },
+      { file: "s/f2.wav", code: "@0173", dur: 0.88 },
+      { file: "s/f3.wav", code: "@0174", dur: 1.18 },
+      { file: "s/f4.wav", code: "@0175", dur: 0.83 },
+    ] },
+  { key: "s7", label: "Sound set 7",
+    tones: [
+      { file: "s/g1.wav", code: "@0121", dur: 1.06 },
+      { file: "s/g2.wav", code: "@0101", dur: 0.49 },
+    ] },
+  { key: "s8", label: "Sound set 8",
+    tones: [
+      { file: "s/h1.wav", code: "@0134", dur: 1.22 },
+      { file: "s/h2.wav", code: "@0144", dur: 1.22 },
+      { file: "s/h3.wav", code: "@0177", dur: 1.22 },
+    ] },
 ];
 document.querySelector(".steps").innerHTML = PAGES.map((p, i) =>
-  `<button class="step" data-go="${i}" id="step-${i}" aria-label="${p.label}"><span class="bar"></span>Set ${i + 1}</button>`).join("");
+  `<button class="step" data-go="${i}" id="step-${i}" aria-label="${p.label}"><span class="bar"></span>${i + 1}</button>`).join("");
 const PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>';
 const STOP = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg>';
 

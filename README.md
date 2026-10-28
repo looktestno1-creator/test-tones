@@ -1,6 +1,6 @@
 # Test tones
 
-A blind listening survey for five sets of product sounds. Each sound asks:
+A blind listening survey for eight sets of product sounds. Each sound asks:
 
 > What would you expect this sound to mean? What does it remind you of?
 
@@ -33,6 +33,15 @@ Listeners also pick their favourite sound in each set and rate it from 1 to 5.
 | `s/e3.wav` | Sound set 5, sound 3 | @0180 |
 | `s/e4.wav` | Sound set 5, sound 4 | @0108 |
 | `s/e5.wav` | Sound set 5, sound 5 | @0152 |
+| `s/f1.wav` | Sound set 6, sound 1 | @0146 |
+| `s/f2.wav` | Sound set 6, sound 2 | @0173 |
+| `s/f3.wav` | Sound set 6, sound 3 | @0174 |
+| `s/f4.wav` | Sound set 6, sound 4 | @0175 |
+| `s/g1.wav` | Sound set 7, sound 1 | @0121 |
+| `s/g2.wav` | Sound set 7, sound 2 | @0101 |
+| `s/h1.wav` | Sound set 8, sound 1 | @0134 |
+| `s/h2.wav` | Sound set 8, sound 2 | @0144 |
+| `s/h3.wav` | Sound set 8, sound 3 | @0177 |
 
 The tone codes match the `@NNNN` suffix of the original sound files. Nothing in this repo says what each set is for, so it stays blind even if the repo is public.
 
