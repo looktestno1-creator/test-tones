@@ -48,7 +48,7 @@ The tone codes match the `@NNNN` suffix of the original sound files. Nothing in 
    (Opening Apps Script from the sheet's **Extensions** menu also works, but it fails with "Sorry, unable to open the file at present" when the browser is signed in to more than one Google account. If you see that, use a private window signed in to just the owner's account.)
 2. Replace everything in `Code.gs` with the contents of `apps-script/Code.gs`, then save. `SHEET_ID` at the top already points at the results sheet.
 3. **Deploy → New deployment →** type **Web app**. Set *Execute as* to **Me** and *Who has access* to **Anyone**, then **Deploy** and allow access when Google asks.
-4. Copy the web app URL (it ends in `/exec`) and paste it into `SHEET_URL` near the bottom of `index.html`.
+4. Copy the web app URL (it ends in `/exec`) into `SHEET_URL` near the bottom of `index.html`. This is already done for the current deployment.
 
 "Anyone" only lets visitors *send* answers. The script never returns sheet data, and the sheet itself stays private to you.
 

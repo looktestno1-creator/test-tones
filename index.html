@@ -273,7 +273,7 @@ function summaryText() {
 }
 // Shared responses: each listener writes responses/<their id>; only the owner and editors read them all.
 // Outside a Claude artifact (e.g. GitHub Pages) answers go to the Google Sheet web app below instead.
-const SHEET_URL = ""; // paste the Apps Script web app URL (ends in /exec)
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbzC4DRqcna_ch9f_ekIUG2xC-uyms2BXqNZ7kClIlsygdqs7PqBTRggyFJYb0rFNL1h/exec"; // paste the Apps Script web app URL (ends in /exec)
 let db = null, user = null, myId = null, saved = false;
 const finishBtn = document.getElementById("finish"), submitStatus = document.getElementById("submit-status");
 
