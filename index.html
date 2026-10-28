@@ -121,12 +121,10 @@ td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-spa
   <header>
     <span class="eyebrow">Product sounds</span>
     <h1>What do these sounds mean to you?</h1>
-    <p class="lede">Play each sound and write down what you'd expect it to mean, or what it reminds you of. There are no wrong answers. Then mark the variation you like best and rate it from 1 to 5. There are two short pages.</p>
+    <p class="lede">Play each sound and write down what you'd expect it to mean, or what it reminds you of. There are no wrong answers. Then mark the variation you like best and rate it from 1 to 5. There are five short pages.</p>
   </header>
 
   <nav class="steps" aria-label="Survey pages">
-    <button class="step" data-go="0" id="step-0"><span class="bar"></span>Sound set 1</button>
-    <button class="step" data-go="1" id="step-1"><span class="bar"></span>Sound set 2</button>
   </nav>
 
   <main id="pages"></main>
@@ -154,7 +152,30 @@ const PAGES = [
       { file: "s/b3.wav", code: "@0171", dur: 0.80 },
       { file: "s/b4.wav", code: "@0172", dur: 0.83 },
     ] },
+  { key: "s3", label: "Sound set 3",
+    tones: [
+      { file: "s/c1.wav", code: "@0138", dur: 0.76 },
+      { file: "s/c2.wav", code: "@0126", dur: 0.86 },
+    ] },
+  { key: "s4", label: "Sound set 4",
+    tones: [
+      { file: "s/d1.wav", code: "@0159", dur: 0.56 },
+      { file: "s/d2.wav", code: "@0160", dur: 0.54 },
+      { file: "s/d3.wav", code: "@0111", dur: 0.43 },
+      { file: "s/d4.wav", code: "@0154", dur: 0.33 },
+      { file: "s/d5.wav", code: "@0130", dur: 0.97 },
+    ] },
+  { key: "s5", label: "Sound set 5",
+    tones: [
+      { file: "s/e1.wav", code: "@0166", dur: 0.98 },
+      { file: "s/e2.wav", code: "@0167", dur: 1.00 },
+      { file: "s/e3.wav", code: "@0180", dur: 1.93 },
+      { file: "s/e4.wav", code: "@0108", dur: 1.23 },
+      { file: "s/e5.wav", code: "@0152", dur: 1.36 },
+    ] },
 ];
+document.querySelector(".steps").innerHTML = PAGES.map((p, i) =>
+  `<button class="step" data-go="${i}" id="step-${i}" aria-label="${p.label}"><span class="bar"></span>Set ${i + 1}</button>`).join("");
 const PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>';
 const STOP = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg>';
 
@@ -171,7 +192,7 @@ PAGES.forEach((p, pi) => {
   a.assoc ||= {};
   const sec = document.createElement("section");
   sec.className = "page"; sec.hidden = pi !== 0; sec.id = "page-" + pi;
-  sec.innerHTML = `<div><h2>${p.label}</h2><p class="q">${p.tones.length} variations of the same sound. Listen to each one and say what you think it means.</p></div>`;
+  sec.innerHTML = `<div><h2>${p.label}</h2><p class="q">${p.tones.length} sounds. Listen to each one and say what you think it means.</p></div>`;
   p.tones.forEach((t, ti) => {
     const id = `${p.key}-${ti + 1}`;
     const card = document.createElement("article");
@@ -274,7 +295,7 @@ function applyAnswers() {
 }
 
 finishBtn.onclick = async () => {
-  document.getElementById("step-1").classList.add("done");
+  document.getElementById("step-" + (PAGES.length - 1)).classList.add("done");
   if (!db || !myId) { showFallback("Answers can't be saved from this view. Copy them and send them over instead."); return; }
   finishBtn.disabled = true; submitStatus.textContent = "Saving…";
   try {
